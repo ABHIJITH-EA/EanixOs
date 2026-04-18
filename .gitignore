@@ -4,4 +4,4 @@ boot.out
 iso/
 *.iso
 
-*.o
+**.o

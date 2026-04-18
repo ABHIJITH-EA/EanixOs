@@ -29,4 +29,4 @@ run: os.iso
 	qemu-system-i386 -boot d -cdrom os.iso
 
 clean:
-	rm -rf *.bin *.iso iso src/*.o
+	rm -rf *.bin *.iso iso src/*.o src/kernel/*.o src/drivers/*.o
