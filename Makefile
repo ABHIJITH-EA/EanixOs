@@ -1,27 +1,32 @@
 CC = gcc
-CFLAGS = -nostartfiles -nostdlib -m32 -e start -g
-LFLAGS = -Wl,-Ttext=0x7c00 -Wl,--build-id=none -Wl,--oformat=binary
-BOOT_BIN = -o boot.bin
-BOOT_SRC = boot.S
-GDB_PORT=3773
+CFLAGS = -ffreestanding -m32 -O2 -Wall -Wextra \
+         -fno-pic -fno-pie -fno-stack-protector -mno-red-zone \
+         -Iinclude
+LDFLAGS = -T linker.ld -ffreestanding -m32 -nostdlib -nostartfiles -nodefaultlibs -nostdinc -Wl,--build-id=none -static
 
-obj:
-	gcc -nostartfiles -nostdlib -m32 -e start -g -Wl,-Ttext=0x7c00 -o boot.out boot.S
+SRC = src/kernel.c src/boot.S src/drivers/vga.c src/kernel/kprintf.c
+OBJ = $(SRC:.c=.o)
+OBJ := $(OBJ:.S=.o)
 
-objdump: obj
-	objdump -mi8086 -d boot.out
+all: os.iso
 
-image: obj
-	$(CC) $(CFLAGS) $(LFLAGS) $(BOOT_BIN) $(BOOT_SRC)
+src/%.o: src/%.c
+	$(CC) $(CFLAGS) -c $< -o $@
 
-qemu: image
-	qemu-system-i386 -drive file=boot.bin,format=raw
+src/%.o: src/%.S
+	$(CC) $(CFLAGS) -c $< -o $@
 
-debug: image
-	qemu-system-i386 -drive file=boot.bin,format=raw -nographic -serial mon:stdio -gdb tcp::$(GDB_PORT) -S
+kernel.bin: $(OBJ)
+	$(CC) $(LDFLAGS) -o $@ $(OBJ) -lgcc
 
-gdb:
-	gdb -n -x .gdbinit
+os.iso: kernel.bin
+	mkdir -p iso/boot/grub
+	cp kernel.bin iso/boot/kernel.bin
+	cp boot/grub/grub.cfg iso/boot/grub/grub.cfg
+	grub-mkrescue -o os.iso iso -d /usr/lib/grub/i386-pc
+
+run: os.iso
+	qemu-system-i386 -boot d -cdrom os.iso
 
 clean:
-	rm -rf *.bin *.out
+	rm -rf *.bin *.iso iso src/*.o
