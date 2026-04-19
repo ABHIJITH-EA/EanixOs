@@ -2,6 +2,7 @@
 #include "vga.h"
 #include "timer.h"
 #include "io.h"
+#include "keyboard.h"
 
 char scancode_table[128] = {
     0,  27, '1','2','3','4','5','6','7','8','9','0','-','=', '\b',
@@ -20,7 +21,7 @@ void isr_handler(registers_t* regs) {
 		if(scancode < 128) {
 			char c = scancode_table[scancode];
 			if(c) {
-				vga_put_char(c);
+				keyboard_push(c);
 			}
 		}
 

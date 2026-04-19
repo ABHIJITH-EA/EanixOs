@@ -5,6 +5,9 @@
 #include "pic.h"
 #include "pit.h"
 #include "timer.h"
+#include "keyboard.h"
+#include "string.h"
+
 
 void kernel_main(void) {
 	vga_init();
@@ -27,29 +30,52 @@ void kernel_main(void) {
 	__asm__ volatile ("sti");
 	kprintf("Starting timer...\n");
 
-	kprintf("Sleeping 2 seconds...\n");
-	timer_sleep(200);
-	kprintf("Awake!\n");
+	// kprintf("Sleeping 2 seconds...\n");
+	// timer_sleep(200);
+	// kprintf("Awake!\n");
 
-	// kprintf("Triggering exception...\n");
+	kprintf("> ");
 
-	// kprintf("Before exception\n");
+	char cmd[128];
+	int idx = 0;
 
-	// volatile int zero = 0;
-	// int x = 1 / zero;
+	while(1) {
+		if(keyboard_has_input()) {
+			char c = keyboard_get_char();
 
-	// __asm__ volatile (
-	//     "mov $0, %eax\n"
-	//     "div %eax\n"
-	// );
+			if(c == '\n') {
+				cmd[idx] = '\0';
+				kprintf("\n");
 
-	// kprintf("After exception\n");
+				// process command
+				if(idx > 0) {
+					if(strcmp(cmd, "help") == 0) {
+						kprintf("Commands: help clear ticks\n");
+					} else if(strcmp(cmd, "clear") == 0) {
+						vga_init();
+					} else if(strcmp(cmd, "ticks") == 0) {
+						kprintf("Ticks: %d\n", timer_get_ticks());
+					} else {
+						kprintf("Unknown command\n");
+					}
+				}
 
-	// (void)x;
+				idx = 0;
+				kprintf("> ");
+			} else if(c == '\b') {
+				if(idx > 0) {
+					idx--;
+					vga_put_char('\b');
+				}
+			} else {
+				if(idx < 127) {
+					cmd[idx++] = c;
+					vga_put_char(c); // echo
+				}
+			}
+		}
 
-	// __asm__ volatile ("int $0");
+		__asm__ volatile ("hlt");
+	}
 
-    while(1) {
-        __asm__ volatile ("hlt");
-    }
 }
