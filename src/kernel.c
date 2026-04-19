@@ -3,6 +3,8 @@
 #include "gdt.h"
 #include "idt.h"
 #include "pic.h"
+#include "pit.h"
+#include "timer.h"
 
 void kernel_main(void) {
 	vga_init();
@@ -19,9 +21,14 @@ void kernel_main(void) {
 	pic_remap();
 	pic_enable_timer();
 
-	// OMG qemu crashing with this
+	pit_init(100);
+
 	__asm__ volatile ("sti");
 	kprintf("Starting timer...\n");
+
+	kprintf("Sleeping 2 seconds...\n");
+	timer_sleep(200);
+	kprintf("Awake!\n");
 
 	// kprintf("Triggering exception...\n");
 

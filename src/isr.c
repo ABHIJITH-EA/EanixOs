@@ -1,14 +1,12 @@
 #include "isr.h"
 #include "vga.h"
-
-static int tick = 0;
+#include "timer.h"
 
 void isr_handler(registers_t* regs) {
 	// (void)(regs); // suppress unused arguments
 
 	if(regs->int_no == 32) {
-		tick++;
-		vga_write("ISR: TICK\n");
+		timer_tick();
 	} else {
 		vga_write("ISR: EXCEPTION TRIGGERED\n");
 
