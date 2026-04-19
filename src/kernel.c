@@ -1,7 +1,8 @@
+#include "vga.h"
+#include "kprintf.h"
 #include "gdt.h"
 #include "idt.h"
-#include "kprintf.h"
-#include "vga.h"
+#include "pic.h"
 
 void kernel_main(void) {
 	vga_init();
@@ -14,10 +15,15 @@ void kernel_main(void) {
 	kprintf("Initializing IDT...\n");
 	idt_init();
 
-	// OMG qemu crashing with this
-	// __asm__ volatile ("sti");
+	kprintf("Remapping PIC...\n");
+	pic_remap();
+	pic_enable_timer();
 
-	kprintf("Triggering exception...\n");
+	// OMG qemu crashing with this
+	__asm__ volatile ("sti");
+	kprintf("Starting timer...\n");
+
+	// kprintf("Triggering exception...\n");
 
 	// kprintf("Before exception\n");
 
@@ -33,7 +39,7 @@ void kernel_main(void) {
 
 	// (void)x;
 
-	__asm__ volatile ("int $0");
+	// __asm__ volatile ("int $0");
 
     while(1) {
         __asm__ volatile ("hlt");

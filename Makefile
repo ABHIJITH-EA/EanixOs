@@ -5,7 +5,8 @@ CFLAGS = -ffreestanding -m32 -O2 -Wall -Wextra \
 LDFLAGS = -T linker.ld -ffreestanding -m32 -nostdlib -nostartfiles -nodefaultlibs -nostdinc -Wl,--build-id=none -static
 
 SRC = src/kernel.c src/boot.S src/drivers/vga.c src/kernel/kprintf.c \
-	src/idt.c src/isr.c src/isr_asm.S src/idt_load.S src/gdt.c src/gdt_flush.S
+	src/idt.c src/isr.c src/isr_asm.S src/idt_load.S src/gdt.c src/gdt_flush.S \
+	src/pic.c
 
 # OBJ = $(SRC:.c=.o)
 # OBJ := $(OBJ:.S=.o)

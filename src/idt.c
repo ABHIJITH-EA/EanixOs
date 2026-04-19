@@ -4,6 +4,7 @@
 
 extern void idt_load(uint32_t);
 extern void isr0();
+extern void isr32();
 
 idt_entry_t idt[IDT_ENTRIES];
 idt_ptr_t idt_ptr;
@@ -36,8 +37,8 @@ void idt_init() {
 	//     idt[i].type_attr = 0;
 	// }
 
-	// set divided-by-zero handler
-	idt_set_gate(0, (uint32_t)isr0);
+	idt_set_gate(0, (uint32_t)isr0); // Divided-by-zero handler
+	idt_set_gate(32, (uint32_t)isr32);
 
 	kprintf("IDT base: %x\n", (uint32_t)&idt);
 	kprintf("IDT ptr: %x\n", (uint32_t)&idt_ptr);
