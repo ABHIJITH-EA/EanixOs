@@ -20,6 +20,7 @@ void kernel_main(void) {
 	kprintf("Remapping PIC...\n");
 	pic_remap();
 	pic_enable_timer();
+	pic_enable_keyboard();
 
 	pit_init(100);
 

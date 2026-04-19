@@ -1,5 +1,7 @@
 .global isr0
 .global isr32
+.global isr33
+
 .extern isr_handler
 
 isr0:
@@ -61,6 +63,39 @@ isr32:
     call isr_handler
 
     add $4, %esp
+    pop %eax
+    mov %ax, %ds
+    mov %ax, %es
+
+    popa
+    add $8, %esp
+
+    movb $0x20, %al
+    outb %al, $0x20   # EOI
+
+    sti
+    iret
+
+isr33:
+    cli
+
+    pushl $0
+    pushl $33
+
+    pusha
+
+    mov %ds, %ax
+    push %eax
+
+    mov $0x10, %ax
+    mov %ax, %ds
+    mov %ax, %es
+
+    push %esp
+    call isr_handler
+
+    add $4, %esp
+
     pop %eax
     mov %ax, %ds
     mov %ax, %es

@@ -38,3 +38,9 @@ void pic_enable_timer() {
 	mask &= ~(1 << 0); // Enable IRQ0
 	outb(0x21, mask);
 }
+
+void pic_enable_keyboard() {
+	uint8_t mask = inb(0x21);
+	mask &= ~(1 << 1); // Enable IRQ1
+	outb(0x21, mask);
+}
