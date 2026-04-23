@@ -1,5 +1,4 @@
 #include "idt.h"
-#include "vga.h"
 #include "kprintf.h"
 
 extern void idt_load(uint32_t);

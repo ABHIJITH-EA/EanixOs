@@ -4,23 +4,25 @@ SECTIONS
 {
     . = 1M;
 
-    .multiboot : {
-        *(.multiboot)
+    .text : ALIGN(4)
+    {
+        KEEP(*(.multiboot))   /* MUST BE FIRST */
+        *(.text*)
     }
 
-    .text : {
-        *(.text)
+    .rodata : ALIGN(4)
+    {
+        *(.rodata*)
     }
 
-    .rodata : {
-        *(.rodata)
+    .data : ALIGN(4)
+    {
+        *(.data*)
     }
 
-    .data : {
-        *(.data)
-    }
-
-    .bss : {
-        *(.bss)
+    .bss : ALIGN(4)
+    {
+        *(.bss*)
+        *(COMMON)
     }
 }
