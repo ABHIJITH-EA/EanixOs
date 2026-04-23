@@ -1,27 +1,39 @@
 CC = gcc
-CFLAGS = -nostartfiles -nostdlib -m32 -e start -g
-LFLAGS = -Wl,-Ttext=0x7c00 -Wl,--build-id=none -Wl,--oformat=binary
-BOOT_BIN = -o boot.bin
-BOOT_SRC = boot.S
-GDB_PORT=3773
+CFLAGS = -ffreestanding -m32 -O2 -Wall -Wextra \
+         -fno-pic -fno-pie -fno-stack-protector -mno-red-zone \
+         -Iinclude
+LDFLAGS = -T linker.ld -ffreestanding -m32 -nostdlib -nostartfiles -nodefaultlibs -nostdinc -Wl,--build-id=none -static
 
-obj:
-	gcc -nostartfiles -nostdlib -m32 -e start -g -Wl,-Ttext=0x7c00 -o boot.out boot.S
+SRC = src/kernel.c src/boot.S src/drivers/vga.c src/kernel/kprintf.c \
+	src/idt.c src/isr.c src/isr_asm.S src/idt_load.S src/gdt.c src/gdt_flush.S \
+	src/pic.c src/pit.c src/timer.c src/keyboard.c src/string.c src/terminal.c \
+	src/kmalloc.c src/task.c src/task_switch.S
 
-objdump: obj
-	objdump -mi8086 -d boot.out
+# OBJ = $(SRC:.c=.o)
+# OBJ := $(OBJ:.S=.o)
 
-image: obj
-	$(CC) $(CFLAGS) $(LFLAGS) $(BOOT_BIN) $(BOOT_SRC)
+OBJ = $(patsubst %.c,%.o,$(patsubst %.S,%.o,$(SRC)))
 
-qemu: image
-	qemu-system-i386 -drive file=boot.bin,format=raw
+all: os.iso
 
-debug: image
-	qemu-system-i386 -drive file=boot.bin,format=raw -nographic -serial mon:stdio -gdb tcp::$(GDB_PORT) -S
+src/%.o: src/%.c
+	$(CC) $(CFLAGS) -c $< -o $@
 
-gdb:
-	gdb -n -x .gdbinit
+src/%.o: src/%.S
+	$(CC) $(CFLAGS) -c $< -o $@
+
+
+kernel.bin: $(OBJ)
+	$(CC) $(LDFLAGS) -o $@ src/boot.o $(filter-out src/boot.o,$(OBJ)) -lgcc
+
+os.iso: kernel.bin
+	mkdir -p iso/boot/grub
+	cp kernel.bin iso/boot/kernel.bin
+	cp boot/grub/grub.cfg iso/boot/grub/grub.cfg
+	grub-mkrescue -o os.iso iso -d /usr/lib/grub/i386-pc
+
+run: os.iso
+	qemu-system-i386 -boot d -cdrom os.iso
 
 clean:
-	rm -rf *.bin *.out
+	rm -rf *.bin *.iso iso src/*.o src/kernel/*.o src/drivers/*.o
