@@ -4,8 +4,6 @@
 
 #define STACK_SIZE 4096
 
-extern void task_switch_asm(uint32_t* old, uint32_t* new);
-
 static task_t* current = 0;
 
 task_t* task_get_current() {
@@ -20,7 +18,7 @@ void task_create(void (*entry)()) {
 	task_t* task = (task_t*)kmalloc(sizeof(task_t));
 
 	uint32_t stack = (uint32_t)kmalloc(STACK_SIZE);
-	uint32_t* sp = (uint32_t*)(stack + STACK_SIZE);
+	uint32_t* sp = (uint32_t*)((stack + STACK_SIZE) & ~0xF);
 
 	*(--sp) = 0x202; // eflags
 	*(--sp) = 0x08;	 // cs
@@ -46,7 +44,7 @@ void task_create(void (*entry)()) {
 
 	if(!current) {
 		current = task;
-		task->next = current;
+		task->next = task;
 	} else {
 		task_t* temp = current;
 
@@ -67,7 +65,13 @@ uint32_t* task_switch(uint32_t* current_esp) {
 	current->esp = (uint32_t)current_esp;
 	current = current->next;
 
-	// kprintf(" prev=%x next=%x ", current, current->next);
-
 	return (uint32_t*)current->esp;
+}
+
+void idle_task() {
+	while (1)
+	{
+		__asm__ volatile("hlt");
+	}
+	
 }

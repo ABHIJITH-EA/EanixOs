@@ -77,7 +77,7 @@ isr32:
     movb $0x20, %al
     outb %al, $0x20
 
-    // sti
+    sti
     iret
 
 isr33:

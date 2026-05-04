@@ -44,7 +44,8 @@ void kernel_main(void) {
 
 	kprintf("Initializing tasks...\n");
 	task_init();
-
+	
+	task_create(idle_task);
 	task_create(taskA);
 	task_create(taskB);
 

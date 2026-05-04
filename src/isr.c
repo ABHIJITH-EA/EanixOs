@@ -18,7 +18,14 @@ uint32_t* isr_handler(registers_t* regs) {
 	if(regs->int_no == 32) {
 		timer_tick();
 
-		return task_switch((uint32_t*)regs);
+		static int tick = 0;
+
+		if(++tick >= 10) {
+			tick = 0;
+			return task_switch((uint32_t*)regs);
+		}
+
+		return (uint32_t*)regs;
 	} else if(regs->int_no == 33) {
 		uint8_t scancode = inb(0x60);
 		if(scancode < 128) {

@@ -8,6 +8,7 @@ typedef struct task {
 	struct task* next; // linked list
 } task_t;
 
+void idle_task(void);
 void task_init(void);
 void task_create(void (*entry)());
 uint32_t* task_switch(uint32_t*);
