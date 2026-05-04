@@ -43,6 +43,7 @@ void task_create(void (*entry)()) {
 
 	task->esp = (uint32_t)sp;
 	task->state = TASK_READY;
+	task->sleep_ticks = 0;
 
 	if(!current) {
 		current = task;
@@ -105,4 +106,31 @@ void idle_task() {
 
 void task_set_idle(task_t* task) {
 	task->state = TASK_IDLE;
+}
+
+void task_sleep(uint32_t ticks) {
+	if(!current) return;
+
+	current->sleep_ticks = ticks;
+	current->state = TASK_BLOCKED;
+
+	__asm__ volatile("int $32");
+}
+
+void task_tick() {
+	if (!current) return;
+
+	task_t* t = current;
+
+	do {
+		if(t->state == TASK_BLOCKED && t->sleep_ticks > 0) {
+			t->sleep_ticks--;
+
+			if(t->sleep_ticks == 0) {
+				t->state = TASK_READY;
+			}
+		}
+
+		t = t->next;
+	} while(t != current);
 }

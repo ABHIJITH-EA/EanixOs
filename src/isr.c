@@ -18,6 +18,8 @@ uint32_t* isr_handler(registers_t* regs) {
 	if(regs->int_no == 32) {
 		timer_tick();
 
+		task_tick();
+
 		static int tick = 0;
 
 		if(++tick >= 10) {

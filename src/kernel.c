@@ -13,14 +13,14 @@
 void taskA() {
 	while(1) {
 		terminal_write("A");
-		for(volatile int i = 0; i < 5000000; i++);
+		task_sleep(20);
 	}
 }
 
 void taskB() {
 	while(1) {
 		terminal_write("B");
-		for(volatile int i = 0; i < 5000000; i++);
+		task_sleep(20);
 	}
 }
 
