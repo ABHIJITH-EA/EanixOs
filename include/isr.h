@@ -10,9 +10,9 @@ typedef struct {
 
 	uint32_t int_no, err_code;
 
-	uint32_t eip, cs, eflags, useresp, ss;
+	uint32_t eip, cs, eflags;
 } registers_t;
 
-void isr_handler(registers_t* regs);
+uint32_t* isr_handler(registers_t* regs);
 
 #endif

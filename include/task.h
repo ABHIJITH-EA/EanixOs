@@ -10,7 +10,7 @@ typedef struct task {
 
 void task_init(void);
 void task_create(void (*entry)());
-void task_switch(void);
+uint32_t* task_switch(uint32_t*);
 task_t* task_get_current(void);
 
 #endif

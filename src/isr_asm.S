@@ -62,7 +62,11 @@ isr32:
     push %esp
     call isr_handler
 
-    add $4, %esp
+    add $4, %esp     # remove arg
+
+    mov %eax, %esp   # SWITCH
+
+
     pop %eax
     mov %ax, %ds
     mov %ax, %es
@@ -71,9 +75,9 @@ isr32:
     add $8, %esp
 
     movb $0x20, %al
-    outb %al, $0x20   # EOI
+    outb %al, $0x20
 
-    sti
+    // sti
     iret
 
 isr33:

@@ -12,13 +12,13 @@ char scancode_table[128] = {
     0,'\\','z','x','c','v','b','n','m',',','.','/',
 };
 
-void isr_handler(registers_t* regs) {
+uint32_t* isr_handler(registers_t* regs) {
 	// (void)(regs); // suppress unused arguments
 
 	if(regs->int_no == 32) {
 		timer_tick();
 
-		// task_switch();
+		return task_switch((uint32_t*)regs);
 	} else if(regs->int_no == 33) {
 		uint8_t scancode = inb(0x60);
 		if(scancode < 128) {
@@ -36,4 +36,5 @@ void isr_handler(registers_t* regs) {
 		}
 	}
 
+	return (uint32_t*)regs;
 }
