@@ -46,6 +46,9 @@ void kernel_main(void) {
 	task_init();
 	
 	task_create(idle_task);
+	task_t* idle = task_get_current();
+	task_set_idle(idle);
+	
 	task_create(taskA);
 	task_create(taskB);
 

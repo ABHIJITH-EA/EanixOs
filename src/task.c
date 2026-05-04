@@ -1,6 +1,7 @@
 #include "task.h"
 #include "kmalloc.h"
 #include "kprintf.h"
+#include <stddef.h>
 
 #define STACK_SIZE 4096
 
@@ -41,6 +42,7 @@ void task_create(void (*entry)()) {
 	*(--sp) = 0x10;	// ds
 
 	task->esp = (uint32_t)sp;
+	task->state = TASK_READY;
 
 	if(!current) {
 		current = task;
@@ -59,11 +61,36 @@ void task_create(void (*entry)()) {
 
 }
 
-uint32_t* task_switch(uint32_t* current_esp) {
+uint32_t* task_schedule(uint32_t* current_esp) {
 	if(!current) return current_esp;
 
+	// save current context
 	current->esp = (uint32_t)current_esp;
-	current = current->next;
+
+	if(current->state == TASK_RUNNING)
+		current->state = TASK_READY;
+
+	task_t* next = current->next;
+	task_t* idle = NULL;
+
+	while (1) {
+		if(next->state == TASK_READY) break;
+		
+		if(next->state == TASK_IDLE)
+			idle = next;
+
+		next = next->next;
+
+		if(next == current) break;
+	}
+
+	if(next->state != TASK_READY) {
+		if (idle) next = idle;
+		else next = current;
+	}
+
+	current = next;
+	current->state = TASK_RUNNING;
 
 	return (uint32_t*)current->esp;
 }
@@ -74,4 +101,8 @@ void idle_task() {
 		__asm__ volatile("hlt");
 	}
 	
+}
+
+void task_set_idle(task_t* task) {
+	task->state = TASK_IDLE;
 }

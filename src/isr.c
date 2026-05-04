@@ -22,7 +22,7 @@ uint32_t* isr_handler(registers_t* regs) {
 
 		if(++tick >= 10) {
 			tick = 0;
-			return task_switch((uint32_t*)regs);
+			return task_schedule((uint32_t*)regs);
 		}
 
 		return (uint32_t*)regs;
