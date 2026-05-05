@@ -1,4 +1,5 @@
 #include "keyboard.h"
+#include "task.h"
 
 #define BUFFER_SIZE 256
 
@@ -25,4 +26,13 @@ char keyboard_get_char() {
 	char c = buffer[tail];
 	tail = (tail + 1) % BUFFER_SIZE;
 	return c;
+}
+
+char keyboard_getchar_blocking() {
+	while (!keyboard_has_input())
+	{
+		task_sleep(1);
+	}
+	
+	return keyboard_get_char();
 }

@@ -16,6 +16,10 @@ typedef struct task {
 	task_state_t state;
 
 	uint32_t sleep_ticks;
+
+	int waiting_for_input;
+
+	struct process* process;
 } task_t;
 
 void idle_task(void);

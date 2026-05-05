@@ -1,8 +1,10 @@
 .global isr0
 .global isr32
 .global isr33
+.global isr128
 
 .extern isr_handler
+.extern syscall_handler
 
 isr0:
 	cli
@@ -109,6 +111,36 @@ isr33:
 
     movb $0x20, %al
     outb %al, $0x20   # EOI
+
+    sti
+    iret
+
+isr128:
+    cli
+
+    push $0
+    push $128
+    pusha
+
+    mov %ds, %ax
+    push %eax
+
+
+    mov $0x10, %ax
+    mov %ax, %ds
+    mov %ax, %es
+
+    push %esp
+    call syscall_handler
+
+    add $4, %esp
+
+    pop %eax
+    mov %ax, %ds
+    mov %ax, %es
+
+    popa
+    add $8, %esp
 
     sti
     iret
