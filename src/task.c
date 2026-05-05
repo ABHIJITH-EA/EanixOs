@@ -1,9 +1,12 @@
 #include "task.h"
 #include "kmalloc.h"
 #include "kprintf.h"
+#include "process.h"
 #include <stddef.h>
 
 #define STACK_SIZE 4096
+
+extern process_t* current_process;
 
 static task_t* current = 0;
 
@@ -15,7 +18,7 @@ void task_init() {
 	current = 0;
 }
 
-void task_create(void (*entry)()) {
+task_t* task_create(void (*entry)()) {
 	task_t* task = (task_t*)kmalloc(sizeof(task_t));
 
 	uint32_t stack = (uint32_t)kmalloc(STACK_SIZE);
@@ -60,6 +63,8 @@ void task_create(void (*entry)()) {
 		task->next  = current;
 	}
 
+	return task;
+
 }
 
 uint32_t* task_schedule(uint32_t* current_esp) {
@@ -92,6 +97,9 @@ uint32_t* task_schedule(uint32_t* current_esp) {
 
 	current = next;
 	current->state = TASK_RUNNING;
+	current_process = current->process;
+
+	// kprintf("PID=%d\n", current->process->pid);
 
 	return (uint32_t*)current->esp;
 }

@@ -10,6 +10,7 @@
 #include "terminal.h"
 #include "task.h"
 #include "shell.h"
+#include "process.h"
 
 void kernel_main(void) {
 	vga_init();
@@ -32,11 +33,11 @@ void kernel_main(void) {
 	kprintf("Initializing tasks...\n");
 	task_init();
 	
-	task_create(idle_task);
-	task_t* idle = task_get_current();
-	task_set_idle(idle);
+	process_t* idle_proc = process_create(idle_task);
+	// task_t* idle = task_get_current();
+	task_set_idle(idle_proc->main_task);
 
-	task_create(shell);
+	process_create(shell);
 
 	// __asm__ volatile ("sti");
 
