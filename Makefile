@@ -7,7 +7,7 @@ LDFLAGS = -T linker.ld -ffreestanding -m32 -nostdlib -nostartfiles -nodefaultlib
 SRC = src/kernel.c src/boot.S src/drivers/vga.c src/kernel/kprintf.c \
 	src/idt.c src/isr.c src/isr_asm.S src/idt_load.S src/gdt.c src/gdt_flush.S \
 	src/pic.c src/pit.c src/timer.c src/keyboard.c src/string.c src/terminal.c \
-	src/kmalloc.c src/task.c
+	src/kmalloc.c src/task.c src/shell.c src/syscall.c
 
 # OBJ = $(SRC:.c=.o)
 # OBJ := $(OBJ:.S=.o)

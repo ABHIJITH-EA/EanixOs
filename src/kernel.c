@@ -9,20 +9,7 @@
 #include "string.h"
 #include "terminal.h"
 #include "task.h"
-
-void taskA() {
-	while(1) {
-		terminal_write("A");
-		task_sleep(20);
-	}
-}
-
-void taskB() {
-	while(1) {
-		terminal_write("B");
-		task_sleep(20);
-	}
-}
+#include "shell.h"
 
 void kernel_main(void) {
 	vga_init();
@@ -48,9 +35,8 @@ void kernel_main(void) {
 	task_create(idle_task);
 	task_t* idle = task_get_current();
 	task_set_idle(idle);
-	
-	task_create(taskA);
-	task_create(taskB);
+
+	task_create(shell);
 
 	// __asm__ volatile ("sti");
 
